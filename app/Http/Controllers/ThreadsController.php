@@ -12,6 +12,15 @@ class ThreadsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    /**
+    * ThreadsController constructor.
+    */
+    public function __construct()
+    {
+        $this->middleware('auth')->only('store');
+    }
+
     public function index()
     {
         # gets all recent threads
@@ -37,7 +46,14 @@ class ThreadsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        $thread = Thread::create([
+            'user_id' => auth()->id(),
+            'title' => request('title'),
+            'body' => request('body')
+        ]);
+
+        return back($thread->path());
     }
 
     /**
