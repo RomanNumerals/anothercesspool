@@ -15,6 +15,7 @@ class ThreadsTest extends TestCase
 
         # creates random threads for the purpose of testing
         $thread = factory('App\Thread')->create();
+
         $reply = factory('App\Reply')->create(['thread_id' => $this->thread->id]);
     }
 
@@ -24,6 +25,7 @@ class ThreadsTest extends TestCase
 
         # when a user visits threads, return all threads
         $response = $this->get('/threads');
+
         $response->assertSee($thread->title);
     }
 
@@ -33,16 +35,18 @@ class ThreadsTest extends TestCase
 
         # when a user visits a specific thread, return that thread based on the id
         $response = $this->get('/threads/' . $thread->id);
+
         $response->assertSee($thread->title);
     }
 
     /** @test*/
     public function a_user_can_read_replies_that_are_associated_with_a_thread()
     {
-        // $reply = factory('App\Reply')->create(['thread_id' => $this->thread->id]);
+        $reply = factory('App\Reply')->create(['thread_id' => $this->thread->id]);
 
         # when user visits thread page show user responses
-        $response = $this->get('/threads' . $this->thread->id);
+        $response = $this->get($this->thread->path());
+        
         $response->assertSee($reply->body);
     }
 }
