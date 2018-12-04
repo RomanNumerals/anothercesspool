@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class CreateThreadsTest extends TestCase
 {
@@ -19,9 +21,10 @@ class CreateThreadsTest extends TestCase
    	* Upon creation, when visiting thread page, new thread should be seen
     */
 
-    $this->actingAs(factory('App\User')->create());
+    $this->signIn();
 
-    $thread = factory('App\Thread')->make();
+    $thread = make('App\Thread');
+
     $this->post('/threads', $thread->toArray());
 
     $this->get($thread->path())
@@ -35,7 +38,15 @@ class CreateThreadsTest extends TestCase
 
    	$this->expectException('Illuminate\Auth\AuthenticationException');
 
-   	$thread = factory('App\Thread')->make();
+   	$thread = make('App\Thread');
     $this->post('/threads', $thread->toArray());
-   } 
+   }
+
+   /** @test */
+   public function guests_cannont_see_thread_creation_page()
+   {
+
+    $this->get('/threads/create')
+         ->assertRedirect('/login');
+   }
 }
