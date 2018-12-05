@@ -16,13 +16,12 @@ class ParticipateInForum extends TestCase
     public function unathenticated_users_cannot_reply()
     {
 
-        $this->expectException('Illuminate\Auth\AuthenticationException');
-
-        $this->post('/threads/1/replies', []);
-        // $thread = factory('App\Thread')->create();
-
-        // $reply = factory('App\Reply')->create();
-        // $this->post($thread->path().'/replies', $reply->toArray());
+        $this->withExceptionHandling()
+             ->post('/threads/some-channel/1/replies', [])
+             ->assertRedirect('/login');
+             
+        // $this->expectException('Illuminate\Auth\AuthenticationException');
+        // $this->post('/threads/some-channel/1/replies', []);
     }
 
     /** @test */
@@ -43,5 +42,18 @@ class ParticipateInForum extends TestCase
         # after reply is posted ensure that it is visible
         $this->get($thread->path());
         $response->assertSee($reply->body); 
+    }
+
+    /** @test */
+    public function replies_require_a_body()
+    {
+
+        $this->withExceptionHandling()->signIn();
+
+        $thread = create('App\Thread');
+        $reply = make('App\Reply', ['body' => null]);
+
+        $this->post($thread->path() . '/replies', $reply->toArray())
+             ->asserSessionHasErrors('body');
     }
 }
