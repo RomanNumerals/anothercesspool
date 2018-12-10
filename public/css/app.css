@@ -1,3 +1,9 @@
+.channel {
+	margin-left: 10px;
+}
+.text-center {
+	color: #f8f9fa;
+}
 .pt-4, .py-4 {
 	background: black;
 }
