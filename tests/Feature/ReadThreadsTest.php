@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class ThreadsTest extends TestCase
 {
     use DatabaseMigrations;
+
+    protected $thread;
 
     public function setUp()
     {
@@ -48,5 +51,30 @@ class ThreadsTest extends TestCase
         $response = $this->get($this->thread->path());
         
         $response->assertSee($reply->body);
+    }
+
+    /** @test*/
+    public function a_user_can_filter_threads_by_channel()
+    {
+
+        $channel = create('App\Channel');
+        $threadInChannel = create('App\Thread', ['channel_id' => $channel->id]);
+        $threadNotInChannel = create('App\Thread');
+
+        $this->get('/threads' . $channel->slug)
+             ->assertSee($threadInChannel->title)
+             ->assertDontSee($threadNotInChannel->title);
+    }
+
+    public function a_user_can_filter_thread_by_thread_creator()
+    {
+        $this->signIn(create('App\User', ['name' => 'JohnDoe']));
+
+        $threadByJohn = create('App\Thread', ['user_id' => auth()->id()]);
+        $threadNotByJohn = create('App\Thread');
+
+        $this->get('thread?by=JohnDoe')
+             ->assertSee($threadByJohn->title)
+             ->assertDontSee($threadNotByJohn->title);
     }
 }
