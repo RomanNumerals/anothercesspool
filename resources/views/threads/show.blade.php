@@ -1,47 +1,42 @@
 @extends('layouts.app')
 
+@section('head')
+    <link rel="stylesheet" href="/css/vendor/jquery.atwho.css">
+@endsection
+
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <a href="#"> {{ $thread->creator->name }} </a> posted:
-                    {{ $thread->title }}
+    <thread-view :thread="{{ $thread }}" inline-template>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8" v-cloak>
+                    @include ('threads._question')
+
+                    <replies @added="repliesCount++" @removed="repliesCount--"></replies>
                 </div>
 
-                <div class="card-body">
-                    {{ $thread->body }}
-                </div>
-            </div>
-            <hr>
-        </div>
-    </div>
+                <div class="col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <p>
+                                This thread was published {{ $thread->created_at->diffForHumans() }} by
+                                <a href="#">{{ $thread->creator->name }}</a>, and currently
+                                has <span
+                                        v-text="repliesCount"></span> {{ str_plural('comment', $thread->replies_count) }}
+                                .
+                            </p>
 
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            @foreach ($thread->replies as $reply)
-                @include ('threads.reply')
-            @endforeach
-        </div>
-    </div>
+                            <p>
+                                <subscribe-button :active="{{ json_encode($thread->isSubscribedTo) }}" v-if="signedIn"></subscribe-button>
 
-    @if (auth()->check())
-         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <form method="POST" action="{{ $thread->path() . '/replies' }}">
-                    {{ csrf_field() }}
-
-                    <div class="form-group">
-                        <textarea name="body" id="body" class="form-control" placeholder="Comments" rows="5"></textarea>
+                                <button class="btn btn-default"
+                                        v-if="authorize('isAdmin')"
+                                        @click="toggleLock"
+                                        v-text="locked ? 'Unlock' : 'Lock'"></button>
+                            </p>
+                        </div>
                     </div>
-
-                    <button type="submit" class="btn btn-default">Submit</button>
-                </form>
+                </div>
             </div>
         </div>
-    @else
-    <p class="text-center">Please <a href="{{ route('login') }}"> login</a> or <a href="{{ route('register') }}"> register</a> to post any comments.</p>
-    @endif
-</div>
+    </thread-view>
 @endsection
