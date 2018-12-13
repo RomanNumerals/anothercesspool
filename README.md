@@ -45,3 +45,7 @@ to fix my issues. For the minor errors that I encountered there were simple chan
 * Better project breakdown after switching projects
 * Better project decision making earlier on to combat the aforementioned issues
 * Committing smaller amounts of code to not get lost when trying to trouble shoot
+
+##### Links associated
+* Heroku: https://powerful-ravine-97610.herokuapp.com/
+* Tutorial: Laracasts.com
